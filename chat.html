@@ -148,12 +148,13 @@
 
     function displayMessages(messages) {
       chatDiv.innerHTML = "";
-      messages.forEach((msg, index) => {
+      messages.forEach((msg) => {
         const div = document.createElement("div");
         div.className = "message";
         if (msg.sender === username) {
           div.classList.add("sent");
         }
+
         const senderSpan = document.createElement("div");
         senderSpan.className = "sender";
         senderSpan.textContent = msg.sender || "مجهول";
@@ -162,8 +163,21 @@
         textSpan.className = "text";
         textSpan.textContent = msg.text;
 
+        const timeSpan = document.createElement("div");
+        timeSpan.className = "time";
+        const date = new Date(msg.timestamp);
+        timeSpan.textContent = date.toLocaleTimeString("ar-EG", {
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+        timeSpan.style.fontSize = "0.8rem";
+        timeSpan.style.color = "#888";
+        timeSpan.style.marginTop = "0.3rem";
+        timeSpan.style.textAlign = "left";
+
         div.appendChild(senderSpan);
         div.appendChild(textSpan);
+        div.appendChild(timeSpan);
 
         chatDiv.appendChild(div);
       });
@@ -215,8 +229,6 @@
 
     function logout() {
       localStorage.removeItem("username");
-      localStorage.removeItem("email");
-      localStorage.removeItem("password");
       window.location.href = "login.html";
     }
 
