@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🎯 لعبة صيد النجوم</title>
+  <style>
+    body {
+      background-color: #111;
+      color: #fff;
+      font-family: 'Arial';
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    #game {
+      position: relative;
+      width: 600px;
+      height: 400px;
+      background-color: #222;
+      margin: 20px auto;
+      border: 3px solid #fff;
+      overflow: hidden;
+    }
+
+    #player {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background-color: limegreen;
+      border-radius: 8px;
+      left: 50px;
+      top: 50px;
+    }
+
+    #star {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      background-color: gold;
+      border-radius: 50%;
+      box-shadow: 0 0 10px gold;
+    }
+
+    #scoreBoard {
+      margin-top: 10px;
+      font-size: 20px;
+    }
+
+    #controls {
+      display: grid;
+      grid-template-columns: repeat(3, 60px);
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .btn {
+      width: 60px;
+      height: 60px;
+      font-size: 22px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 10px;
+    }
+
+    .btn:active {
+      background-color: #555;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🌟 لعبة صيد النجوم</h1>
+
+  <div id="game">
+    <div id="player"></div>
+    <div id="star"></div>
+  </div>
+
+  <div id="scoreBoard">
+    ⭐ النقاط: <span id="score">0</span> | 🕒 الوقت: <span id="time">60</span> ثانية | 🔝 أفضل نتيجة: <span id="highScore">0</span>
+  </div>
+
+  <!-- تحكم باللمس -->
+  <div id="controls">
+    <button class="btn"></button>
+    <button class="btn" onclick="move('up')">⬆️</button>
+    <button class="btn"></button>
+    <button class="btn" onclick="move('left')">⬅️</button>
+    <button class="btn"></button>
+    <button class="btn" onclick="move('right')">➡️</button>
+    <button class="btn"></button>
+    <button class="btn" onclick="move('down')">⬇️</button>
+    <button class="btn"></button>
+  </div>
+
+  <script>
+    const player = document.getElementById("player");
+    const star = document.getElementById("star");
+    const scoreDisplay = document.getElementById("score");
+    const timeDisplay = document.getElementById("time");
+    const highScoreDisplay = document.getElementById("highScore");
+
+    let playerX = 50, playerY = 50;
+    let score = 0;
+    let timeLeft = 60;
+    let highScore = localStorage.getItem("highScore") || 0;
+
+    const speed = 20;
+    const gameWidth = 600;
+    const gameHeight = 400;
+
+    highScoreDisplay.textContent = highScore;
+
+    document.addEventListener("keydown", (e) => {
+      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+        move(e.key.replace("Arrow", "").toLowerCase());
+      }
+    });
+
+    function move(dir) {
+      if (timeLeft <= 0) return;
+
+      switch (dir) {
+        case "up": playerY -= speed; break;
+        case "down": playerY += speed; break;
+        case "left": playerX -= speed; break;
+        case "right": playerX += speed; break;
+      }
+
+      playerX = Math.max(0, Math.min(gameWidth - 40, playerX));
+      playerY = Math.max(0, Math.min(gameHeight - 40, playerY));
+
+      player.style.left = playerX + "px";
+      player.style.top = playerY + "px";
+
+      checkCollision();
+    }
+
+    function randomPosition(maxX, maxY) {
+      return {
+        x: Math.floor(Math.random() * (maxX - 30)),
+        y: Math.floor(Math.random() * (maxY - 30))
+      };
+    }
+
+    function placeStar() {
+      const pos = randomPosition(gameWidth, gameHeight);
+      star.style.left = pos.x + "px";
+      star.style.top = pos.y + "px";
+    }
+
+    function checkCollision() {
+      const playerRect = player.getBoundingClientRect();
+      const starRect = star.getBoundingClientRect();
+
+      if (
+        playerRect.left < starRect.right &&
+        playerRect.right > starRect.left &&
+        playerRect.top < starRect.bottom &&
+        playerRect.bottom > starRect.top
+      ) {
+        score++;
+        scoreDisplay.textContent = score;
+        placeStar();
+      }
+    }
+
+    placeStar();
+
+    const timer = setInterval(() => {
+      if (timeLeft > 0) {
+        timeLeft--;
+        timeDisplay.textContent = timeLeft;
+      } else {
+        clearInterval(timer);
+        endGame();
+      }
+    }, 1000);
+
+    function endGame() {
+      alert("⏰ انتهى الوقت! نتيجتك: " + score);
+      if (score > highScore) {
+        localStorage.setItem("highScore", score);
+        alert("🎉 رقم قياسي جديد!");
+      }
+      location.reload(); // إعادة تشغيل اللعبة
+    }
+  </script>
+
+</body>
+</html>
